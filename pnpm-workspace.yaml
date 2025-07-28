@@ -1,0 +1,7 @@
+packages:
+  - apps/spa-mobile
+  - apps/ssr-cloudflare
+  - packages/*
+
+onlyBuiltDependencies:
+  - esbuild
