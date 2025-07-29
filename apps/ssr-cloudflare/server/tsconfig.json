@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // modern JS target for Node 18+
+    "module": "ESNext", // supports top-level await and dynamic import
+    "moduleResolution": "node", // resolve modules like Node.js
+    "lib": ["ES2022"], // support ES2022 built-ins (Promise, etc)
+    "esModuleInterop": true, // for compatibility with CommonJS modules (like express)
+    "allowJs": false,
+    "outDir": "./dist", // emit JS files here
+    "rootDir": "./", // root of source files (relative to tsconfig)
+    "strict": true, // strict type checking
+    "noEmitOnError": true, // don't emit files if there are errors
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true, // allow importing JSON files if needed
+    "skipLibCheck": true, // skip type checking of declaration files
+    "types": ["node", "express"] // include node and express types
+  },
+  "include": ["**/*"], // include all TS/JS files in the server directory
+  "exclude": ["dist", "node_modules"] // exclude output and dependencies
+}
