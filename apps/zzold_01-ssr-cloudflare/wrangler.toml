@@ -1,0 +1,6 @@
+name = "ssr-cloudflare"
+main = "dist/server/entry-server.js"
+compatibility_date = "2025-07-29"
+
+[site]
+bucket = "./dist/client"

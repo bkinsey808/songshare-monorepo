@@ -2,8 +2,11 @@ packages:
   - apps/spa-mobile
   - apps/ssr-cloudflare
   - packages/*
+inject-workspace-packages: true
 
 onlyBuiltDependencies:
+  - "@swc/core"
+  - "@tailwindcss/oxide"
   - esbuild
   - sharp
   - workerd

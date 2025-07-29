@@ -1,0 +1,44 @@
+{
+  "name": "ssr-cloudflare",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "//dev": "echo 'Start Vite dev server'",
+    "dev": "vite",
+    "//build:client": "echo 'Build the client-side assets (JS, CSS, etc.)'",
+    "build:client": "vite build",
+    "//build:server": "echo 'Build the SSR server bundle'",
+    "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
+    "//build": "echo 'Build client and server'",
+    "build": "pnpm build:client && pnpm build:server",
+    "//preview": "echo 'Run local preview server with Express'",
+    "preview": "node server/preview.js",
+    "//deploy": "echo 'Deploy the Cloudflare Worker using wrangler'",
+    "deploy": "wrangler deploy",
+    "//clean": "echo 'Clean dist folders'",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.30.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "express": "^4.21.2",
+    "globals": "^16.3.0",
+    "postcss": "^8.5.6",
+    "rimraf": "^6.0.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.35.1",
+    "vite": "^7.0.4"
+  }
+}
