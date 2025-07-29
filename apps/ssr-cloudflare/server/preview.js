@@ -1,8 +1,8 @@
-// server/preview.js
 import express from "express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { JSDOM } from "jsdom";
 
 // Resolve __dirname in ES module scope
 const __filename = fileURLToPath(import.meta.url);
@@ -35,22 +35,29 @@ app.use(
 // 4. SSR handler for all routes
 app.get("*", (req, res) => {
   try {
-    const { appHtml } = render();
+    const { appHtml } = render(req.url);
 
-    // Replace the <script data-script="main"> tag's src with built client script path
-    let html = template.replace(
-      /<script\s+data-script="main"[^>]*src="[^"]*"[^>]*><\/script>/,
-      `<script type="module" src="/assets/index.js"></script>`
-    );
+    // Load HTML template into JSDOM
+    const dom = new JSDOM(template);
+    const document = dom.window.document;
 
-    // Inject SSR rendered HTML inside #root div
-    html = html.replace(
-      /<div\s+id="root"[^>]*><\/div>/,
-      `<div id="root">${appHtml}</div>`
-    );
+    // Inject SSR-rendered HTML into the #root div
+    const rootDiv = document.getElementById("root");
+    if (rootDiv) {
+      rootDiv.innerHTML = appHtml;
+    }
+
+    // Replace <script data-script="main" ...> with the final client bundle script tag
+    const oldScript = document.querySelector('script[data-script="main"]');
+    if (oldScript) {
+      const newScript = document.createElement("script");
+      newScript.type = "module";
+      newScript.src = "/assets/index.js";
+      oldScript.replaceWith(newScript);
+    }
 
     res.setHeader("Content-Type", "text/html");
-    res.send(html);
+    res.send(dom.serialize());
   } catch (error) {
     console.error("SSR error:", error);
     res.status(500).send("Internal Server Error");
