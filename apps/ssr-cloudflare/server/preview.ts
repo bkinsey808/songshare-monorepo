@@ -1,10 +1,12 @@
-//src/preview.ts
+// src/preview.ts
 import express from "express";
 import type { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { JSDOM } from "jsdom";
+
+import { getHello } from "./routes/sharedApi.js";
+import { injectAppHtmlIntoTemplate } from "./routes/sharedSsr.js";
 
 (async () => {
   try {
@@ -15,48 +17,39 @@ import { JSDOM } from "jsdom";
     const port = 8787;
 
     const template = fs.readFileSync(
-      path.resolve(__dirname, "../dist/index.html"),
+      path.resolve(__dirname, "../../dist/index.html"),
       "utf-8"
     );
 
     const { render } = await import(
-      path.resolve(__dirname, "../dist/server/assets/entry-server.js") +
+      path.resolve(__dirname, "../../dist/server/assets/entry-server.js") +
         "?import"
     );
 
-    app.use(express.static(path.resolve(__dirname, "../public")));
+    app.use(express.static(path.resolve(__dirname, "../../public")));
+
     app.use(
       "/assets",
-      express.static(path.resolve(__dirname, "../dist/assets"))
+      express.static(path.resolve(__dirname, "../../dist/assets"))
     );
+
     app.use(
       "/vite.svg",
-      express.static(path.resolve(__dirname, "../dist/vite.svg"))
+      express.static(path.resolve(__dirname, "../../dist/vite.svg"))
     );
 
-    app.get("/api/hello", (_req: Request, res: Response) => {
-      res.json({ message: "Hello from custom API endpoint!" });
+    app.get("/api/hello", async (_req: Request, res: Response) => {
+      const data = await getHello();
+      res.json(data);
     });
 
-    app.get("*", (req: Request, res: Response) => {
+    app.get("*", async (req: Request, res: Response) => {
       try {
-        const { appHtml } = render(req.url);
-        const dom = new JSDOM(template);
-        const document = dom.window.document;
-        const rootDiv = document.getElementById("root");
-        if (rootDiv) rootDiv.innerHTML = appHtml;
-        else console.warn("Warning: #root element not found in template");
-
-        const oldScript = document.querySelector('script[data-script="main"]');
-        if (oldScript) {
-          const newScript = document.createElement("script");
-          newScript.type = "module";
-          newScript.src = "/assets/index.js";
-          oldScript.replaceWith(newScript);
-        }
+        const { appHtml } = await render(req.url);
+        const html = injectAppHtmlIntoTemplate(template, appHtml);
 
         res.setHeader("Content-Type", "text/html");
-        res.send(dom.serialize());
+        res.send(html);
       } catch (err) {
         console.error("SSR error:", err);
         res.status(500).send("Internal Server Error");
